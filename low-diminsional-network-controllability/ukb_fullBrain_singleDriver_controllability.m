@@ -1,4 +1,4 @@
-% script to apply Full controllability to the UK-Biobank connectomes
+% script to study (full network) low-dimensional controllability to the UK-Biobank connectomes
 
 clear all;
 
@@ -93,8 +93,6 @@ lambdaMax = eigs(matrix , 1);
 A = multiForPropag * ((matrix / (1.01 * lambdaMax)) - eye(n));
 
 
-
-
 warning off
 
 %% define nodes of the system
@@ -111,7 +109,7 @@ for ktarget = 1 : targetSize
 end
 
 
-%% define Slepians or Laplacian
+%% define  Laplacian
 
 targetlaplac = diag(sum(matrix)) - matrix;
 
@@ -181,8 +179,8 @@ for kDriver = 1:n
 
     %% control all target
     [ySimuAll, xSimuAll, Uall , P_adj , n_err , condPinvSpec , condAtilde] = ...
-        myControlFun_betterThanStiso_output(A, B , T,STEP, t, x0, zeros(n,1), rhoOpt, ...
-        zeros(n,n) , eye(n) , zeros(n,n) , eye(n) , yf  );
+        myOutputControlFunction(A, B , T, t, x0, zeros(n,1), rhoOpt, ...
+         R , Q , eye(n) , yf  );
 
     % Trajectory
     enNumAll = controlEnergy(Uall , STEP);
@@ -216,21 +214,18 @@ for kDriver = 1:n
             %% control low dimension
 
             [yBarSimu, xSimuext, Ucan , P_adj , n_err , condPinvSpec , condAtilde] = ...
-                myControlFun_betterThanStiso_output(A, B , T,STEP, t, x0, zeros(n,1) , ...
-                rhoOpt,  zeros(n,n) , eye(n) , zeros(n,n) , Cbar*bigC , zf  );
+                myOutputControlFunction(A, B , T, t, x0, zeros(n,1) , ...
+                rhoOpt , R , Q , Cbar*bigC , zf  );
 
             % Trajectory
             enNumEigen = controlEnergy(Ucan , STEP);
             % %%%%%  Store Results  Eigen  %%%%%%
 
             relativeErrorArraySpectral(kDriver , kOutDim) = norm(yBarSimu(end , :)' - zf , 2)/norm(zf , 2);
-            %                 relativeErrorArraySpectralCosine(kDriver , kTargetDim) = cosineDist(yBarSimu(end,:)' , zf);
 
-            %         localityArraySpectral(kTask , kScale) = localRateEigen;
             energyArraySpectral(kDriver , kOutDim) = enNumEigen;
             %%%%%%%%%%%%%
             relativeErrorArraySpectral2sys(kDriver , kOutDim) = norm(xSimuext(end,target)' - yf , 2)/norm(yf , 2);
-            %                 relativeErrorArraySpectral2sysCosine(kDriver , kTargetDim) = cosineDist(xSimuext(end,target)' , yf);
 
 
         end

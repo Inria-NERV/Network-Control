@@ -1,3 +1,6 @@
+% script to run the second simulation of the paper : varying output
+% dimension with single drivers
+% 
 clear all;
 delete(gcp('nocreate'));
 
@@ -463,10 +466,10 @@ parfor kScale = 1 : nOutputs
         %% control all targets
         if kScale == 1
             if gramControl
-                [ySimu, xSimu, U ] = myMinEneregyControlFun_works_new(A, B, T,STEP, t, x0, yf , C);
+                [ySimu, xSimu, U ] = myOutputControlFunction_GramInv(A, B, T, t, x0, yf , C);
             else
                 [ySimu, xSimu, U , P_adj ,n_err , condPinv , condAtilde] = ...
-                    myControlFun_betterThanStiso_output(A, B, T,STEP, t, x0, xf, rhoOpt,  zeros(n,n) , R , Q , C , yf  );
+                    myOutputControlFunction(A, B, T, t, x0, xf, rhoOpt , R , Q , C , yf  );
             end
 
             % Trajectory
@@ -478,10 +481,10 @@ parfor kScale = 1 : nOutputs
         end
         %% Control  average
         if gramControl
-            [ySimuAvg, xSimuAverage, Uavg ] = myMinEneregyControlFun_works_new(A, B, T,STEP, t, x0, yfAvg , Cavg);
+            [ySimuAvg, xSimuAverage, Uavg ] = myOutputControlFunction_GramInv(A, B, T, t, x0, yfAvg , Cavg);
         else
             [ySimuAvg, xSimuAverage, Uavg , P_adj ,n_err , condPinvAvg , condAtilde] = ...
-                myControlFun_betterThanStiso_output(A, B, T,STEP, t, x0, xf, rhoOpt,  zeros(n,n) , R , Q , Cavg , yfAvg  );
+                myOutputControlFunction(A, B, T, t, x0, xf, rhoOpt , R , Q , Cavg , yfAvg  );
         end
 
         % Trajectory
@@ -507,10 +510,10 @@ parfor kScale = 1 : nOutputs
 
         %% Control eigen-modes
         if gramControl
-            [yBarSimu, xSimuext, Ucan ] = myMinEneregyControlFun_works_new(A, B, T,STEP, t, x0, zf , Cbar);
+            [yBarSimu, xSimuext, Ucan ] = myOutputControlFunction_GramInv(A, B, T, t, x0, zf , Cbar);
         else
             [yBarSimu, xSimuext, Ucan , P_adj , n_err , condPinvSpec , condAtilde] = ...
-                myControlFun_betterThanStiso_output(A, B , T,STEP, t, x0, xf, rhoOpt,  zeros(n,n) , R , zeros(n,n) , Cbar , zf  );
+                myOutputControlFunction(A, B , T, t, x0, xf, rhoOpt , R , Q , Cbar , zf  );
         end
         % Trajectory
         enNumEigen = controlEnergy(Ucan , STEP);
