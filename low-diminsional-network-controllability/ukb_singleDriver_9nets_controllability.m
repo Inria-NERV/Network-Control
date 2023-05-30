@@ -1,4 +1,4 @@
-% script to apply output controllability to the UK-Biobank connectomes
+% script to apply target low-dimensional controllability to the UK-Biobank connectomes
 
 clear all;
 
@@ -73,12 +73,12 @@ matrix = load_UKBiobank_connectome(tablePath , schaeferSize);
 %% load ROIs Info
 
 if bilateralNetworks
-    ROI_info_Table = readtable( 'controllability_ukb/Schaefer200_allinfo_bilateral_networks.csv');
+    ROI_info_Table = readtable( 'Schaefer200_allinfo_bilateral_networks.csv');
     networksAssignment = table2array(ROI_info_Table(:,5));
     nNetworks = max(networksAssignment);
     save_dir = '9nets_bilateral';
 else
-    ROI_info_Table = readtable( 'controllability_ukb/Schaefer200_allinfo.csv');
+    ROI_info_Table = readtable( 'Schaefer200_allinfo.csv');
     networksAssignment = table2array(ROI_info_Table(:,5));
     nNetworks = max(networksAssignment);
     save_dir = '9nets';
@@ -218,8 +218,8 @@ parfor kSys = 1 : nSystems
 
         %% control all target
         [ySimuAll, xSimuAll, Uall , P_adj , n_err , condPinvSpec , condAtilde] = ...
-            myControlFun_betterThanStiso_output(A, B , T,STEP, t, x0, zeros(n,1), rhoOpt, ...
-            zeros(n,n) , eye(n) , zeros(n,n) , bigC , yf  );
+            myOutputControlFunction(A, B , T, t, x0, zeros(n,1), rhoOpt, ...
+             R , Q , bigC , yf  );
 
         % Trajectory
         enNumAll = controlEnergy(Uall , STEP);
@@ -252,8 +252,8 @@ parfor kSys = 1 : nSystems
                 %% control low dimension
 
                 [yBarSimu, xSimuext, Ucan , P_adj , n_err , condPinvSpec , condAtilde] = ...
-                    myControlFun_betterThanStiso_output(A, B , T,STEP, t, x0, zeros(n,1) , ...
-                    rhoOpt,  zeros(n,n) , eye(n) , zeros(n,n) , Cbar*bigC , zf  );
+                    myOutputControlFunction(A, B , T, t, x0, zeros(n,1) , ...
+                    rhoOpt ,R , Q, Cbar*bigC , zf  );
 
                 % Trajectory
                 enNumEigen = controlEnergy(Ucan , STEP);
