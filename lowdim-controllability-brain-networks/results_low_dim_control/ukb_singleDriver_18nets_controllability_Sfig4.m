@@ -149,10 +149,6 @@ for kSys = 1: nSystems
     [lambda , idxAsc] = sort(lambdaNotSorted , 'ascend'); % for Laplacian
     V = VnotSorted(: , idxAsc);
 
-
-    yfGFT = (V')* yf;
-    [~ , orderedModesIdx] = sort((abs(yfGFT) ), 'descend');
-
     %% loop over drivers
 
     for kDriver = 1:n
