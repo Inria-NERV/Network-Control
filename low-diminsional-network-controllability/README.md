@@ -6,7 +6,8 @@ Messaoud, R. B., Du, V. L., Kaufmann, B. C., Couvy-Duchesne, B., Migliaccio, L.,
 https://arxiv.org/abs/2311.11132
 
 
-#Dependencies    
+#Dependencies
+MATLAB control system toolbox
 Two dependencies are needed:  
 Brain Connectivity Toolbox: https://sites.google.com/site/bctnet/    
 The Graph Signal Processing Toolbox: https://epfl-lts2.github.io/gspbox-html/   
