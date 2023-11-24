@@ -1,5 +1,5 @@
 Some scripts use large files that aggregate results obtained on N=6134 subjects.
-To reproduce those results, 4 additional files need to be included in this path. They can be shared upon request.
+To reproduce those figures, 4 additional files need to be included in this path. They can be shared upon request.
 
 List of the files:  
 bigTensor_results_target9nets_on_6134_subjects.mat  
