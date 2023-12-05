@@ -37,10 +37,13 @@ function lowCC= low_dimensional_control_centrality(matrix , target, drivers, r_d
 % default : target =1:n control the entire network
 % target = 1xtargetsize vector
 
+
 % INPUT 3
 % drivers = vector of indices of nodes to to check as drivers and compute
 % their control cnetrality ... default  drivers =1:n , check all nodes
 % drivers = 1xnDrivers vector
+% default : drivers =1:n compute control centreality for all nodes
+
 
 % INPUT 4
 % r_dim = the low-dimension of the output control = number of eigenmaps of
@@ -51,11 +54,25 @@ function lowCC= low_dimensional_control_centrality(matrix , target, drivers, r_d
 % lowCC = vector of size 1xnDrivers that returns the low-dimensional
 % control centrality for each driver
 
+n = size(matrix,1);
+
+if nargin<4
+    r_dim=5;
+end
+if nargin<3
+    drivers=1:n;
+end
+
+if nargin<2
+    target=1:n;
+end
+
+
 %% %%%%%%%%%%%%%%%%%%%%%
 nDrivers = length(drivers) ;
-n = size(A,1);
 
-targetsize = length(target);
+
+targetSize = length(target);
 
 %% normalize matrix to A
 lambdaMax = eigs(matrix , 1);
@@ -68,7 +85,7 @@ bigC = zeros(targetSize , n);
 for ktarget = 1 : targetSize
     bigC(ktarget , target(ktarget)) = 1;
 end
-targetnet = matrix(target , target);
+targetNet = matrix(target , target);
 
 %% get the Laplacian eigenmaps of the target network
 targetlaplac = diag(sum(targetNet)) - targetNet;
@@ -79,8 +96,9 @@ lambdaNotSorted = diag(lambdaMatNotSorted);
 [lambda , idxAsc] = sort(lambdaNotSorted , 'ascend'); % for Laplacian
 V = VnotSorted(: , idxAsc);
 
+orderedModesIdx = 1:n;
 %% loop over drivers
-lowCC = zeros(1,nDrivers);
+lowCC = zeros(nDrivers,1);
 for k = 1:nDrivers
 
     %% build input matrix B
@@ -103,11 +121,23 @@ for k = 1:nDrivers
 
     Wbar = Ceig * targetGram * Ceig';
 
-    targetGramSpec = (Wbar + Wbar')/2;
+    targetGramSpec = (Wbar + Wbar')/2; % symmetrize just in case
+    
     lambdaSpecRed = eig(targetGramSpec);
     [~ , ismallabs] = min(abs(lambdaSpecRed));
 
     lowCC(k) = lambdaSpecRed(ismallabs);
 end
+
+%% the condition r_dim <= 5 is chosen to ensure that the control centrality is positive
+%%%% However, for some drivers there could be some negative values
+%%% We propose to replace them by 0 because the Gramian is in priciple
+%%% positive definite... The user can choose to keep them or to take the
+%%% absolute value
+
+% lowCC = abs(lowCC);
+lowCC(lowCC<0)=0;
+
+
 end
 
