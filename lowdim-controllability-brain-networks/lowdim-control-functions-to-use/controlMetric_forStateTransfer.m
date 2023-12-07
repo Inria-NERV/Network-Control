@@ -1,5 +1,4 @@
-function [tarnsferCapacity , lowdim_transferCapacity] = ...
-controlMetric_forStateTransfer(matrix , x0 , xf ,drivers, r_dim , tf)
+function [tarnsferCapacity , lowdim_transferCapacity] = controlMetric_forStateTransfer(matrix , x0 , xf ,drivers, r_dim , tf)
 %--------------------------------------------------------------------------
 % Copyright (c) [2023] [Remy Ben messaoud]
 %

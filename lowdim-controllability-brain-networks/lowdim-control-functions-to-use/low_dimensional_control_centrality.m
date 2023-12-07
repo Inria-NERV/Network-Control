@@ -1,4 +1,4 @@
-function lowCC= low_dimensional_control_centrality(matrix , target, drivers, r_dim)
+function [standardCC , lowdimCC]=low_dimensional_control_centrality(matrix , target, drivers, r_dim)
 %--------------------------------------------------------------------------
 % Copyright (c) [2023] [Remy Ben messaoud]
 %
@@ -51,8 +51,13 @@ function lowCC= low_dimensional_control_centrality(matrix , target, drivers, r_d
 
 % Outputs,
 % OUTPUT 1
-% lowCC = vector of size 1xnDrivers that returns the low-dimensional
+% standardCC = vector of size nDriversx1 that returns the standard
+% control centrality for each driver (worst-case controllability)
+
+% OUTPUT 2
+% lowCC = vector of size nDriversx1 that returns the low-dimensional
 % control centrality for each driver
+
 
 n = size(matrix,1);
 
@@ -98,7 +103,9 @@ V = VnotSorted(: , idxAsc);
 
 orderedModesIdx = 1:n;
 %% loop over drivers
-lowCC = zeros(nDrivers,1);
+lowdimCC = zeros(nDrivers,1);
+standardCC = zeros(nDrivers,1);
+
 for k = 1:nDrivers
 
     %% build input matrix B
@@ -116,6 +123,11 @@ for k = 1:nDrivers
     W = (W + W')/2;
     targetGram = (bigC * W *(bigC'));
 
+    lambdaGram = eig(targetGram);
+    [~ , ismallabs] = min(abs(lambdaGram));
+
+    standardCC(k) = lambdaGram(ismallabs);
+
     %% gramian for the eigenmaps of the target
     Ceig = V(:,orderedModesIdx(1 : r_dim))';
 
@@ -126,7 +138,7 @@ for k = 1:nDrivers
     lambdaSpecRed = eig(targetGramSpec);
     [~ , ismallabs] = min(abs(lambdaSpecRed));
 
-    lowCC(k) = lambdaSpecRed(ismallabs);
+    lowdimCC(k) = lambdaSpecRed(ismallabs);
 end
 
 %% the condition r_dim <= 5 is chosen to ensure that the control centrality is positive
@@ -135,8 +147,8 @@ end
 %%% positive definite... The user can choose to keep them or to take the
 %%% absolute value
 
-% lowCC = abs(lowCC);
-lowCC(lowCC<0)=0;
+% lowdimCC = abs(lowdimCC);
+lowdimCC(lowdimCC<0)=0; % optional
 
 
 end
