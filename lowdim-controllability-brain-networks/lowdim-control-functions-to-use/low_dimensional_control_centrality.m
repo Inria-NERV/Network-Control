@@ -79,6 +79,10 @@ nDrivers = length(drivers) ;
 
 targetSize = length(target);
 
+if r_dim > targetSize
+    fprintf('-----------------\nthe output dimension cannot exceed the target network size-----------------\n')
+end
+
 %% normalize matrix to A
 lambdaMax = eigs(matrix , 1);
 A =  matrix - 1.001 * lambdaMax* eye(n);
