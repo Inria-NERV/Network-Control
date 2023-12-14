@@ -30,6 +30,9 @@ n = size(matrix,2);
 matrix = rand(n,n); % very dense network!!
 
 
+%%% !!!!!!! One can load a network with all different ways possible as long
+%%% as the variable "matrix" is a matlab array of size nxn
+
 %% calculate control centrality metric for a specific target 
 target = 1:12; % correspond to left Visual network in schaefer
 
