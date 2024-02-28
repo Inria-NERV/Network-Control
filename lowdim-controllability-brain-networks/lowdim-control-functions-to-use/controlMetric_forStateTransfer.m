@@ -1,4 +1,4 @@
-function [tarnsferCapacity , lowdim_transferCapacity] = controlMetric_forStateTransfer(matrix , x0 , xf ,drivers, r_dim , tf)
+function [tarnsferCapacity , lowdim_transferCapacity] = controlMetric_forStateTransfer(matrix , x0 , xf , target, drivers, r_dim , tf)
 %--------------------------------------------------------------------------
 % Copyright (c) [2023] [Remy Ben messaoud]
 %
@@ -72,23 +72,25 @@ function [tarnsferCapacity , lowdim_transferCapacity] = controlMetric_forStateTr
 
 n = size(matrix,1);
 
-if nargin<6
+if nargin<7
     tf=1;
 end
 
-if nargin<5
+if nargin<6
     r_dim=5;
 end
-if nargin<4
+
+if nargin<5
     drivers=1:n;
 end
 
-
-% We have an expression of energy in finite time but not ininfinte time the
-% time parameter does not change the trends
+if nargin<4
+    target=1:n;
+end
 
 %% %%%%%%%%%%%%%%%%%%%%%
 nDrivers = length(drivers) ;
+targetSize = length(target);
 
 
 %% normalize matrix to A
@@ -96,9 +98,18 @@ lambdaMax = eigs(matrix , 1);
 A =  matrix - 1.001 * lambdaMax* eye(n);
 % the coef of 1.001 is to ensure Re(Lambda(A))<0 to be stable
 
+%% isolate target network
+
+%%%%% big C matrix for target Control %%%%%%%
+bigC = zeros(targetSize , n);
+for ktarget = 1 : targetSize
+    bigC(ktarget , target(ktarget)) = 1;
+end
+targetNet = matrix(target , target);
 
 %% get the Laplacian eigenmaps of the target network
-targetlaplac = diag(sum(matrix)) - matrix;
+targetlaplac = diag(sum(targetNet)) - targetNet;
+targetlaplac = (targetlaplac + targetlaplac')/2; % symmetrize just in case
 
 [VnotSorted,lambdaMatNotSorted] = eig( targetlaplac );
 lambdaNotSorted = diag(lambdaMatNotSorted);
@@ -131,13 +142,16 @@ for k = 1:nDrivers
     W = gram(sys,'c' , opt);
     W = (W + W')/2;
 
+    Wtarget = bigC * W * bigC';
+    Wtarget = (Wtarget + Wtarget')/2; % symmetrize just in case
+
     %% get transfer capacity : inverse of energy
     tarnsferCapacity(k) =1/( ...
-        ((xf - evolveState)')* (W\(xf - evolveState)) ...
+        ((bigC *xf - bigC *evolveState)')* (Wtarget\(bigC *xf - bigC *evolveState)) ...
                             );
 
     %% gramian for the eigenmaps of the target (Low-dimensional)
-    Ceig = V(:,orderedModesIdx(1 : r_dim))';
+    Ceig = (V(:,orderedModesIdx(1 : r_dim))')*bigC ;
 
     Wbar = Ceig * W * Ceig';
 
