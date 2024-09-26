@@ -74,8 +74,8 @@ n = size(matrix, 1);
 %% normalize matrix to A
 
 lambdaMax = eigs(matrix , 1);
-A =  matrix - 1.001 * lambdaMax* eye(n);
-% the coef of 1.001 is to ensure Re(Lambda(A))<0 to be stable
+A =  matrix - * (lambdaMax + eps) * eye(n);
+% the eps is to ensure Re(Lambda(A))<0 to be stable
 
 warning off
 
