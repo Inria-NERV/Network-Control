@@ -209,7 +209,7 @@ graphs{ 1, kScale} = sparse(matrix);
 
 
 lambdaMax = eigs(matrix , 1);
-A =  matrix - * (lambdaMax + eps)* eye(n);
+A =  matrix - (lambdaMax + eps)* eye(n);
 % the eps is to ensure Re(Lambda(A))<0 to be stable
 
 %% rank drivers acording to betweenness centrality
